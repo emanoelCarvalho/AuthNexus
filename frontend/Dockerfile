@@ -1,16 +1,14 @@
-FROM node:18-alpine AS builder
-
+# Etapa 1: Construção da aplicação Vue
+FROM node:18 AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 
-# Usa um servidor leve para servir os arquivos estáticos
-FROM node:18-alpine
-WORKDIR /app
-RUN npm install -g serve
-COPY --from=builder /app/dist /app/dist
-CMD ["serve", "-s", "dist", "-l", "80"]
-
+# Etapa 2: Configuração do Nginx
+FROM nginx:latest
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
