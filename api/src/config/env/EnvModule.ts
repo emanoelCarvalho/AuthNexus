@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppConfigService } from './EnvService';
+import { EnvService } from './EnvService';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 
@@ -21,7 +21,7 @@ import * as Joi from 'joi';
       }),
     }),
   ],
-  providers: [AppConfigService],
-  exports: [AppConfigService],
+  providers: [EnvService],
+  exports: [EnvService],
 })
-export class AppConfigModule {}
+export class EnvModule {}

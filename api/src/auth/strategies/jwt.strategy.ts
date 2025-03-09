@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AppConfigService } from 'src/config/env/EnvService';
+import { EnvService } from 'src/config/env/EnvService';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(config: AppConfigService) {
+  constructor(configService: EnvService) {
     super({
-      secretOrKey: config.getJwtSecret,
+      secretOrKey: configService.getJwtSecret,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
     });
