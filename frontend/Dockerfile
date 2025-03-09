@@ -1,10 +1,16 @@
-FROM node:18-alpine AS production-stage
+FROM node:18-alpine AS builder
+
 WORKDIR /app
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 
-FROM nginx:alpine
-COPY --from=production-stage /app/dist /usr/share/nginx/html
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# Usa um servidor leve para servir os arquivos estáticos
+FROM node:18-alpine
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=builder /app/dist /app/dist
+CMD ["serve", "-s", "dist", "-l", "80"]
+
+EXPOSE 80
