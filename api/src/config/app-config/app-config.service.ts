@@ -36,4 +36,8 @@ export class AppConfigService {
   get getSaltRounds(): number {
     return this.config.get<number>('BCRYPT_SALT');
   }
+
+  get getDbUrl(): string {
+    return this.config.get<string>('DATABASE_URL');
+  }
 }

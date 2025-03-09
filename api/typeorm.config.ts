@@ -11,10 +11,7 @@ export default new DataSource({
   type: 'postgres',
   host: configService.getOrThrow('DB_HOST'),
   port: configService.getOrThrow('DB_PORT'),
-  username: configService.getOrThrow('DB_USERNAME'),
-  password: configService.getOrThrow('DB_PASSWORD'),
-  database: configService.getOrThrow('DB_DATABASE'),
-  migrations: [__dirname + '/migrations/*{.ts,.js}'],
+  url: configService.getOrThrow('DATABASE_URL'),
   entities: [User],
   logging: ['query', 'error'],
 });
