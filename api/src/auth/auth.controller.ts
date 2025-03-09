@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthSignInDto } from './dto/auth-signin.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -18,6 +19,11 @@ export class AuthController {
       },
     },
   })
+  @ApiResponse({ status: 201, description: 'Login realizado com sucesso.' })
+  @ApiResponse({ status: 401, description: 'Credenciais inválidas.' })
+  singIn(@Body() AuthSignInDto: AuthSignInDto) {
+    return this.authService.signIn(AuthSignInDto.email, AuthSignInDto.password);
+  }
 
   @Post('refresh')
   @ApiBody({

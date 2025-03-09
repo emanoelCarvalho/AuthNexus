@@ -25,7 +25,7 @@ export class AuthService {
 
     const refreshToken = randomUUID();
 
-    await this.redisClient.setEx(`refresh:${refreshToken}`, 604800, user.email);
+    await this.redisClient.setEx(`refresh:${refreshToken}`, 604800, user.id.toString());
 
     return { access_token: token, refresh_token: refreshToken };
   }
@@ -39,13 +39,13 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string): Promise<{ access_token: string }> {
-    const userEmail = await this.redisClient.get(`refresh:${refreshToken}`);
+    const userId = await this.redisClient.get(`refresh:${refreshToken}`);
 
-    if (!userEmail) {
+    if (!userId) {
       throw new UnauthorizedException('Invalid refresh token or expired');
     }
 
-    const user = await this.usersService.findByEmail(userEmail);
+    const user = await this.usersService.findById(Number(userId));
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
