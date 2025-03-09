@@ -36,6 +36,10 @@ export class UsersService {
     }
   }
 
+  async findById(id: number): Promise<User> {
+    return this.repository.findOne({ where: { id } });
+  }
+
   private async hashPassword(password: string): Promise<string> {
     const saltRounds = await this.getSaltRounds();
     const salt = await bcrypt.genSalt(saltRounds);
