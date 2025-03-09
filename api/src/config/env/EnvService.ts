@@ -40,4 +40,8 @@ export class AppConfigService {
   get getDbUrl(): string {
     return this.config.get<string>('DATABASE_URL');
   }
+
+  get getRedisUrl(): string {
+    return this.config.get<string>('REDIS_URL');
+  }
 }

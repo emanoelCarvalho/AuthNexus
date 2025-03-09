@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppConfigService } from './app-config.service';
+import { AppConfigService } from './EnvService';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 
@@ -16,6 +16,8 @@ import * as Joi from 'joi';
         DB_DATABASE: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         BCRYPT_SALT: Joi.number().required().default(10),
+        DATABASE_URL: Joi.string().required(),
+        REDIS_URL: Joi.string().required().default('redis://localhost:6379'),
       }),
     }),
   ],
