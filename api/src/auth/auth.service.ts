@@ -1,26 +1,33 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-
+import { randomUUID } from 'crypto';
+import { RedisClientType } from 'redis';
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    @Inject('REDIS_CLIENT') private redisClient: RedisClientType,
   ) {}
 
   async signIn(
     email: string,
     password: string,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.validateUser(email, password);
+
     const token = await this.generateToken({
       id: user.id.toString(),
       email: user.email,
     });
 
-    return { access_token: token };
+    const refreshToken = randomUUID();
+
+    await this.redisClient.setEx(`refresh:${refreshToken}`, 604800, user.email);
+
+    return { access_token: token, refresh_token: refreshToken };
   }
 
   private async generateToken(user: {
@@ -31,6 +38,30 @@ export class AuthService {
     return this.jwtService.signAsync(payload);
   }
 
+  async refreshToken(refreshToken: string): Promise<{ access_token: string }> {
+    const userEmail = await this.redisClient.get(`refresh:${refreshToken}`);
+
+    if (!userEmail) {
+      throw new UnauthorizedException('Invalid refresh token or expired');
+    }
+
+    const user = await this.usersService.findByEmail(userEmail);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const newAccessToken = await this.generateToken({
+      id: user.id.toString(),
+      email: user.email,
+    });
+
+    return { access_token: newAccessToken };
+  }
+
+  async signOut(refreshToken: string): Promise<void> {
+    await this.redisClient.del(`refresh:${refreshToken}`);
+  }
+  
   private async validateUser(email: string, pass: string) {
     const user = await this.usersService.findByEmail(email);
 

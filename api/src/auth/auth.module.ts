@@ -7,12 +7,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { EnvService } from 'src/config/env/EnvService';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     EnvModule,
+    RedisModule,
     JwtModule.registerAsync({
       imports: [EnvModule],
       useFactory: async (configService: EnvService) => ({

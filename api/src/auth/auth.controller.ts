@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthSignInDto } from './dto/auth-signin.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -19,10 +18,37 @@ export class AuthController {
       },
     },
   })
-  @ApiResponse({ status: 201, description: 'Login realizado com sucesso.' })
-  @ApiResponse({ status: 401, description: 'Credenciais inválidas.' })
-  singIn(@Body() AuthSignInDto: AuthSignInDto) {
-    return this.authService.signIn(AuthSignInDto.email, AuthSignInDto.password);
+
+  @Post('refresh')
+  @ApiBody({
+    description: 'Atualiza o token de acesso',
+    schema: {
+      example: {
+        refresh_token: 'uuid-do-refresh-token',
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Novo token de acesso gerado' })
+  @ApiResponse({
+    status: 401,
+    description: 'Refresh token inválido ou expirado',
+  })
+  refreshToken(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshToken(refreshToken);
+  }
+
+  @Post('logout')
+  @ApiBody({
+    description: 'Revoga o refresh token',
+    schema: {
+      example: {
+        refresh_token: 'uuid-do-refresh-token',
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Logout realizado com sucesso' })
+  logout(@Body('refresh_token') refreshToken: string) {
+    return this.authService.signOut(refreshToken);
   }
 
   @Get('profile')
@@ -38,8 +64,7 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Não autorizado.' })
-  getProfile(@Body() AuthSignInDto: AuthSignInDto) {
-    const message = 'You have successfully accessed the protected route';
-    return { message };
+  getProfile() {
+    return { message: 'You have successfully accessed the protected route' };
   }
 }

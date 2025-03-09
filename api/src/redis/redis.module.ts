@@ -19,5 +19,6 @@ import { EnvService } from 'src/config/env/EnvService';
       inject: [EnvService],
     },
   ],
+  exports: ['REDIS_CLIENT'],
 })
 export class RedisModule {}
