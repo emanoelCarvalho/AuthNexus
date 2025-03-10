@@ -33,15 +33,25 @@ services:
       DATABASE_URL: postgres://${DB_USERNAME}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE}
       REDIS_URL: ${REDIS_URL}
       JWT_SECRET: ${JWT_SECRET}
+      LOGGING_HOST: logstash
+      LOGGING_PORT: 5000
     depends_on:
       - postgres
       - redis
+      - logstash
     ports:
       - "3000:3000"
     networks:
       - app-network
+      - logging-network
     env_file:
       - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: on-failure
 
   frontend:
     build:
@@ -56,10 +66,51 @@ services:
     env_file:
       - .env
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"   # Limita a memória do Java para evitar OOM
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - logging-network
+    restart: on-failure
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.5.0
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    depends_on:
+      - elasticsearch
+    networks:
+      - logging-network
+    restart: on-failure
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.5.0
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - logging-network
+    restart: on-failure
+
 volumes:
   postgres_data: {}
   redis_data: {}
+  elasticsearch_data: {}
 
 networks:
   app-network:
+    driver: bridge
+  logging-network:
     driver: bridge
