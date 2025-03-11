@@ -44,4 +44,12 @@ export class EnvService {
   get getRedisUrl(): string {
     return this.config.get<string>('REDIS_URL');
   }
+
+  get getLogisPort(): number {
+    return this.config.get<number>('localhost');
+  }
+
+  get getLogHost(): string {
+    return this.config.get<string>('LOGGING_HOST');
+  }
 }

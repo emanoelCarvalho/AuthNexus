@@ -10,7 +10,9 @@ async function bootstrap() {
   const PORT = configService.getPort;
 
   SwaggerModuleConfig.setup(app);
+  
   app.useLogger(new AppLogger());
+  app.enableCors();
   await app.listen(PORT);
 }
 bootstrap();
