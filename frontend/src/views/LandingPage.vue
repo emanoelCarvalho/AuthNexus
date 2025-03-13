@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1>Bem-vindo ao SimpliAuth</h1>
+        <h1>Bem-vindo ao AuthNexus</h1>
         <p>Uma forma simples de gerenciar seu acesso.</p>
         <router-link to="/login" class="btn">Login</router-link>
         <router-link to="/register" class="btn">Registrar</router-link>

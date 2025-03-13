@@ -36,8 +36,8 @@ export default {
 
                 console.log(response.data);
                 // Simulação de armazenamento do token e redirecionamento
-                localStorage.setItem('token', response.data.token);
-                console.log(localStorage.getItem('token'));
+                localStorage.setItem('access_token', response.data.access_token);
+                localStorage.setItem('refresh_token', response.data.refresh_token);
                 this.$router.push('/home');
             } catch (error) {
                 this.errorMessage = 'Falha no login. Verifique suas credenciais.';

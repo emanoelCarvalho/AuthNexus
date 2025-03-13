@@ -39,9 +39,11 @@ export default {
                     password: this.password
                 });
 
+                localStorage.setItem('name', response.data.name);
+
                 this.successMessage = 'Registro bem-sucedido! Redirecionando...';
                 setTimeout(() => {
-                    this.$router.push('/home');
+                    this.$router.push('/');
                 }, 2000);
             } catch (error) {
                 this.errorMessage = 'Erro ao registrar. Tente novamente.';
