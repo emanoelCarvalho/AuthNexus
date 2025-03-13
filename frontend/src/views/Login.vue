@@ -5,25 +5,42 @@
         <input type="password" placeholder="Senha" v-model="password">
         <button @click="doLogin">Entrar</button>
         <router-link to="/" class="link">Voltar</router-link>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     name: 'LoginPage',
     data() {
         return {
             email: '',
-            password: ''
+            password: '',
+            errorMessage: ''
         };
     },
     methods: {
-        doLogin() {
-            if (this.email && this.password) {
-                alert('Login simulado! Usuário: ' + this.email);
+        async doLogin() {
+            if (!this.email || !this.password) {
+                this.errorMessage = 'Preencha todos os campos!';
+                return;
+            }
+
+            try {
+                const response = await axios.post('http://localhost:3000/auth/signin', {
+                    email: this.email,
+                    password: this.password
+                });
+
+                console.log(response.data);
+                // Simulação de armazenamento do token e redirecionamento
+                localStorage.setItem('token', response.data.token);
+                console.log(localStorage.getItem('token'));
                 this.$router.push('/home');
-            } else {
-                alert('Preencha todos os campos!');
+            } catch (error) {
+                this.errorMessage = 'Falha no login. Verifique suas credenciais.';
             }
         }
     }
@@ -81,5 +98,10 @@ button:hover {
 
 .link:hover {
     text-decoration: underline;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
 }
 </style>

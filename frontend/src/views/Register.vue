@@ -6,26 +6,45 @@
         <input type="password" placeholder="Senha" v-model="password">
         <button @click="doRegister">Registrar</button>
         <router-link to="/" class="link">Voltar</router-link>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+        <p v-if="successMessage" class="success">{{ successMessage }}</p>
     </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     name: 'RegisterPage',
     data() {
         return {
             name: '',
             email: '',
-            password: ''
+            password: '',
+            errorMessage: '',
+            successMessage: ''
         };
     },
     methods: {
-        doRegister() {
-            if (this.name && this.email && this.password) {
-                alert('Registro simulado! Usuário: ' + this.name);
-                this.$router.push('/home');
-            } else {
-                alert('Preencha todos os campos!');
+        async doRegister() {
+            if (!this.name || !this.email || !this.password) {
+                this.errorMessage = 'Preencha todos os campos!';
+                return;
+            }
+
+            try {
+                const response = await axios.post('http://localhost:3000/users', {
+                    name: this.name,
+                    email: this.email,
+                    password: this.password
+                });
+
+                this.successMessage = 'Registro bem-sucedido! Redirecionando...';
+                setTimeout(() => {
+                    this.$router.push('/home');
+                }, 2000);
+            } catch (error) {
+                this.errorMessage = 'Erro ao registrar. Tente novamente.';
             }
         }
     }
@@ -83,5 +102,15 @@ button:hover {
 
 .link:hover {
     text-decoration: underline;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+.success {
+    color: lightgreen;
+    margin-top: 10px;
 }
 </style>
